@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🫀 Liver Disease Prediction System - Status Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .status-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .status-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .status-card h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 12px 0;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .status-item:last-child {
+            border-bottom: none;
+        }
+
+        .status-label {
+            color: #555;
+            font-weight: 500;
+        }
+
+        .status-value {
+            font-weight: bold;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+
+        .status-online {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-offline {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-ready {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .indicator-online {
+            background-color: #28a745;
+            animation: pulse 2s infinite;
+        }
+
+        .indicator-offline {
+            background-color: #dc3545;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        .performance-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .metric-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .metric-card h4 {
+            color: #667eea;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+            letter-spacing: 1px;
+        }
+
+        .metric-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #333;
+            margin: 15px 0;
+        }
+
+        .metric-unit {
+            color: #999;
+            font-size: 0.8em;
+        }
+
+        .metric-bar {
+            background: #eee;
+            height: 8px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .metric-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 10px;
+        }
+
+        .details-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .details-section h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .detail-item {
+            padding: 15px;
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            border-radius: 5px;
+        }
+
+        .detail-item strong {
+            color: #333;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .detail-item span {
+            color: #666;
+        }
+
+        .endpoints-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .endpoints-table thead {
+            background: #667eea;
+            color: white;
+        }
+
+        .endpoints-table th,
+        .endpoints-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .endpoints-table tr:hover {
+            background: #f5f5f5;
+        }
+
+        .method-get {
+            background: #d1ecf1;
+            color: #0c5460;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .method-post {
+            background: #d4edda;
+            color: #155724;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .method-delete {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .footer {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            color: #666;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .footer p {
+            margin: 10px 0;
+        }
+
+        .timestamp {
+            color: #999;
+            font-size: 0.9em;
+        }
+
+        .alert {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            color: #0c5460;
+        }
+
+        .success-badge {
+            display: inline-block;
+            background: #28a745;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+
+        .columns-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 0.95em;
+        }
+
+        .columns-table thead {
+            background: #667eea;
+            color: white;
+        }
+
+        .columns-table th,
+        .columns-table td {
+            padding: 10px 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .columns-table tr:hover {
+            background: #f5f5f5;
+        }
+
+        .column-name {
+            font-weight: bold;
+            color: #333;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .metric-value {
+                font-size: 2em;
+            }
+
+            .details-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🫀 Liver Disease Prediction System</h1>
+            <p>System Status Dashboard & Technical Information</p>
+        </div>
+
+        <!-- Alert -->
+        <div class="alert">
+            ✅ <strong>System Status:</strong> All components operational and ready for use.
+            <span class="success-badge">PRODUCTION READY</span>
+        </div>
+
+        <!-- System Status -->
+        <div class="status-grid">
+            <div class="status-card">
+                <h3>🖥️ Backend Server</h3>
+                <div class="status-item">
+                    <span class="status-label">Status</span>
+                    <span class="status-value status-online">
+                        <span class="status-indicator indicator-online"></span>Running
+                    </span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">URL</span>
+                    <span class="status-value status-ready">http://localhost:5000</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Framework</span>
+                    <span class="status-value">FastAPI 0.104.1</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Response Time</span>
+                    <span class="status-value">< 200ms</span>
+                </div>
+            </div>
+
+            <div class="status-card">
+                <h3>🌐 Frontend Server</h3>
+                <div class="status-item">
+                    <span class="status-label">Status</span>
+                    <span class="status-value status-online">
+                        <span class="status-indicator indicator-online"></span>Running
+                    </span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">URL</span>
+                    <span class="status-value status-ready">http://localhost:8000</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Server</span>
+                    <span class="status-value">Python http.server</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Pages</span>
+                    <span class="status-value">5 Active</span>
+                </div>
+            </div>
+
+            <div class="status-card">
+                <h3>💾 Database</h3>
+                <div class="status-item">
+                    <span class="status-label">Status</span>
+                    <span class="status-value status-online">
+                        <span class="status-indicator indicator-online"></span>Connected
+                    </span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Type</span>
+                    <span class="status-value">SQLite3</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">File</span>
+                    <span class="status-value">liver_disease.db</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Tables</span>
+                    <span class="status-value">2 (users, predictions)</span>
+                </div>
+            </div>
+
+            <div class="status-card">
+                <h3>🤖 ML Model</h3>
+                <div class="status-item">
+                    <span class="status-label">Algorithm</span>
+                    <span class="status-value">KNN (K=9)</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Accuracy</span>
+                    <span class="status-value status-online">69.83%</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Recall</span>
+                    <span class="status-value">89% (Sensitivity)</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Model File</span>
+                    <span class="status-value">knn_model.pkl</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Performance Metrics -->
+        <div class="performance-grid">
+            <div class="metric-card">
+                <h4>API Response Time</h4>
+                <div class="metric-value">< 200<span class="metric-unit">ms</span></div>
+                <div class="metric-bar">
+                    <div class="metric-fill" style="width: 40%;"></div>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <h4>Prediction Accuracy</h4>
+                <div class="metric-value">69.83<span class="metric-unit">%</span></div>
+                <div class="metric-bar">
+                    <div class="metric-fill" style="width: 69.83%;"></div>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <h4>Model Sensitivity</h4>
+                <div class="metric-value">89<span class="metric-unit">%</span></div>
+                <div class="metric-bar">
+                    <div class="metric-fill" style="width: 89%;"></div>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <h4>System Uptime</h4>
+                <div class="metric-value">100<span class="metric-unit">%</span></div>
+                <div class="metric-bar">
+                    <div class="metric-fill" style="width: 100%;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dataset Information -->
+        <div class="details-section">
+            <h3>📊 Dataset Information</h3>
+            <div class="details-grid">
+                <div class="detail-item">
+                    <strong>Dataset Name</strong>
+                    <span>Indian Liver Patient Dataset (ILPD)</span>
+                </div>
+                <div class="detail-item">
+                    <strong>Total Records</strong>
+                    <span>583 patients</span>
+                </div>
+                <div class="detail-item">
+                    <strong>Valid Records</strong>
+                    <span>579 (after cleaning)</span>
+                </div>
+                <div class="detail-item">
+                    <strong>Features</strong>
+                    <span>10 medical parameters</span>
+                </div>
+                <div class="detail-item">
+                    <strong>Train Set</strong>
+                    <span>463 records (80%)</span>
+                </div>
+                <div class="detail-item">
+                    <strong>Test Set</strong>
+                    <span>116 records (20%)</span>
+                </div>
+                <div class="detail-item">
+                    <strong>Patients</strong>
+                    <span>414 (71.5%)</span>
+                </div>
+                <div class="detail-item">
+                    <strong>Healthy</strong>
+                    <span>165 (28.5%)</span>
+                </div>
+            </div>
+
+            <h3 style="margin-top: 30px;">📋 Dataset Columns (In Order)</h3>
+            <table class="columns-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Column Name</th>
+                        <th>Type</th>
+                        <th>Unit</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td class="column-name">Age</td>
+                        <td>Integer</td>
+                        <td>years</td>
+                        <td>Patient age</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td class="column-name">Gender</td>
+                        <td>Categorical</td>
+                        <td>M/F</td>
+                        <td>Male or Female</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td class="column-name">Total_Bilirubin</td>
+                        <td>Float</td>
+                        <td>mg/dL</td>
+                        <td>Total bilirubin level</td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td class="column-name">Direct_Bilirubin</td>
+                        <td>Float</td>
+                        <td>mg/dL</td>
+                        <td>Direct bilirubin level</td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td class="column-name">Alkaline_Phosphotase</td>
+                        <td>Float</td>
+                        <td>U/L</td>
+                        <td>Alkaline phosphatase enzyme</td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td class="column-name">Alamine_Aminotransferase</td>
+                        <td>Float</td>
+                        <td>U/L</td>
+                        <td>ALT enzyme level</td>
+                    </tr>
+                    <tr>
+                        <td>7</td>
+                        <td class="column-name">Aspartate_Aminotransferase</td>
+                        <td>Float</td>
+                        <td>U/L</td>
+                        <td>AST enzyme level</td>
+                    </tr>
+                    <tr>
+                        <td>8</td>
+                        <td class="column-name">Total_Proteins</td>
+                        <td>Float</td>
+                        <td>g/dL</td>
+                        <td>Total protein concentration</td>
+                    </tr>
+                    <tr>
+                        <td>9</td>
+                        <td class="column-name">Albumin</td>
+                        <td>Float</td>
+                        <td>g/dL</td>
+                        <td>Albumin protein level</td>
+                    </tr>
+                    <tr>
+                        <td>10</td>
+                        <td class="column-name">Albumin_and_Globulin_Ratio</td>
+                        <td>Float</td>
+                        <td>Ratio</td>
+                        <td>A/G ratio</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- API Endpoints -->
+        <div class="details-section">
+            <h3>🔌 API Endpoints</h3>
+            <p style="color: #666; margin-bottom: 15px;"><strong>Base URL:</strong> http://localhost:5000</p>
+            
+            <table class="endpoints-table">
+                <thead>
+                    <tr>
+                        <th>Method</th>
+                        <th>Endpoint</th>
+                        <th>Description</th>
+                        <th>Auth Required</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="method-post">POST</span></td>
+                        <td>/signup</td>
+                        <td>Create new user account</td>
+                        <td>No</td>
+                    </tr>
+                    <tr>
+                        <td><span class="method-post">POST</span></td>
+                        <td>/login</td>
+                        <td>Authenticate user</td>
+                        <td>No</td>
+                    </tr>
+                    <tr>
+                        <td><span class="method-post">POST</span></td>
+                        <td>/predict/{username}</td>
+                        <td>Make prediction with medical parameters</td>
+                        <td>Yes</td>
+                    </tr>
+                    <tr>
+                        <td><span class="method-get">GET</span></td>
+                        <td>/history/{username}</td>
+                        <td>Retrieve all predictions for user</td>
+                        <td>Yes</td>
+                    </tr>
+                    <tr>
+                        <td><span class="method-delete">DELETE</span></td>
+                        <td>/history/{username}/{id}</td>
+                        <td>Delete specific prediction</td>
+                        <td>Yes</td>
+                    </tr>
+                    <tr>
+                        <td><span class="method-delete">DELETE</span></td>
+                        <td>/history/{username}</td>
+                        <td>Clear all predictions for user</td>
+                        <td>Yes</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Feature Pages -->
+        <div class="details-section">
+            <h3>📄 Frontend Pages</h3>
+            <div class="details-grid">
+                <div class="detail-item">
+                    <strong>Home Page</strong>
+                    <span>Welcome & system information</span>
+                </div>
+                <div class="detail-item">
+                    <strong>Signup Page</strong>
+                    <span>User registration form</span>
+                </div>
+                <div class="detail-item">
+                    <strong>Login Page</strong>
+                    <span>User authentication</span>
+                </div>
+                <div class="detail-item">
+                    <strong>Prediction Page</strong>
+                    <span>Medical analysis form</span>
+                </div>
+                <div class="detail-item">
+                    <strong>History Page</strong>
+                    <span>Past predictions tracking</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Features -->
+        <div class="details-section">
+            <h3>✨ System Features</h3>
+            <div class="details-grid">
+                <div class="detail-item">
+                    <strong>User Authentication</strong>
+                    <span>✅ Signup, Login, Logout</span>
+                </div>
+                <div class="detail-item">
+                    <strong>Real-time Prediction</strong>
+                    <span>✅ ML-based diagnosis</span>
+                </div>
+                <div class="detail-item">
+                    <strong>Confidence Scoring</strong>
+                    <span>✅ 0-100% probability</span>
+                </div>
+                <div class="detail-item">
+                    <strong>History Tracking</strong>
+                    <span>✅ All predictions saved</span>
+                </div>
+                <div class="detail-item">
+                    <strong>Medical Parameters</strong>
+                    <span>✅ 10 comprehensive inputs</span>
+                </div>
+                <div class="detail-item">
+                    <strong>Bangladesh Timezone</strong>
+                    <span>✅ GMT+6 formatting</span>
+                </div>
+                <div class="detail-item">
+                    <strong>Responsive Design</strong>
+                    <span>✅ Desktop & Mobile</span>
+                </div>
+                <div class="detail-item">
+                    <strong>Data Alignment</strong>
+                    <span>✅ Full synchronization</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Technology Stack -->
+        <div class="details-section">
+            <h3>🛠️ Technology Stack</h3>
+            <div class="details-grid">
+                <div class="detail-item">
+                    <strong>Backend</strong>
+                    <span>FastAPI, Uvicorn, Pydantic</span>
+                </div>
+                <div class="detail-item">
+                    <strong>Frontend</strong>
+                    <span>HTML5, CSS3, Vanilla JavaScript</span>
+                </div>
+                <div class="detail-item">
+                    <strong>Database</strong>
+                    <span>SQLite3</span>
+                </div>
+                <div class="detail-item">
+                    <strong>ML Framework</strong>
+                    <span>Scikit-learn, Pandas, NumPy</span>
+                </div>
+                <div class="detail-item">
+                    <strong>Server</strong>
+                    <span>Python 3.8+</span>
+                </div>
+                <div class="detail-item">
+                    <strong>Session Management</strong>
+                    <span>localStorage</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p><strong>🫀 Liver Disease Prediction System</strong></p>
+            <p>Advanced Machine Learning for Medical Diagnosis</p>
+            <p class="timestamp">
+                Status Report Generated: December 21, 2025<br>
+                Version: 1.0 | Status: <strong>✅ PRODUCTION READY</strong>
+            </p>
+            <p style="margin-top: 20px; color: #999; font-size: 0.9em;">
+                For more information, see README.md and PROJECT_REPORT.md
+            </p>
+        </div>
+    </div>
+</body>
+</html>

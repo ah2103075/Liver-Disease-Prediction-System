@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>History - Liver Disease Prediction</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="theme.js"></script>
+</head>
+<body>
+    <div class="page">
+        <div class="page-container">
+            <div class="page-header">
+                <button id="themeToggle" class="theme-toggle">🌙</button>
+                <h1>🫀 Liver Disease Prediction System</h1>
+                <p>Your Prediction History</p>
+                <div class="user-info">
+                    <span id="userDisplayHistory"></span>
+                    <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+                </div>
+            </div>
+
+            <div class="page-content history-content">
+                <section class="form-section history-section">
+                    <h2>📊 Prediction History</h2>
+                    <div class="history-controls">
+                        <button class="secondary-btn" onclick="loadHistory()">🔄 Refresh</button>
+                        <button class="danger-btn" onclick="clearHistoryData()">🗑️ Clear All History</button>
+                        <button class="back-btn" onclick="goBack()">⬅️ Back to Predict</button>
+                    </div>
+                    <div id="historyContainer" class="history-container">
+                        <p class="loading">Loading history...</p>
+                    </div>
+                </section>
+            </div>
+
+            <footer class="page-footer">
+                <p>&copy; 2025 Liver Disease Prediction System | Machine Learning Application</p>
+            </footer>
+        </div>
+    </div>
+
+    <script src="history.js"></script>
+</body>
+</html>
