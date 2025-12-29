@@ -1,6 +1,13 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+import os
+import pickle
+import json
+from datetime import datetime
+import sqlite3
+from database import init_db, add_user, get_user, user_exists, add_prediction, get_user_predictions, delete_prediction, clear_user_history
+import uvicorn
 import pickle
 import numpy as np
 import os
@@ -23,9 +30,10 @@ app.add_middleware(
 init_db()
 
 # Load the model (pipeline with scaler + classifier)
-model_path = os.path.join(os.path.dirname(__file__), 'knn_model.pkl')
+# Using optimized KNN model with K=3 for maximum accuracy (77.59%)
+model_path = os.path.join(os.path.dirname(__file__), 'knn_best_model.pkl')
 with open(model_path, 'rb') as f:
-    model = pickle.load(f)  # This is a Pipeline with scaler and KNN classifier
+    model = pickle.load(f)  # This is a Pipeline with scaler and KNN classifier (K=3)
 
 # Feature names for the liver disease model (matching dataset column order)
 FEATURE_NAMES = [

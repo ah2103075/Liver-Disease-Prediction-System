@@ -3,9 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>Prediction - Liver Disease Prediction</title>
     <link rel="stylesheet" href="style.css">
     <script src="theme.js"></script>
+    <script src="access.js" defer></script>
 </head>
 <body>
     <div class="page">
@@ -24,7 +28,7 @@
                 <div class="prediction-main">
                     <section class="form-section">
                         <h2>Patient Information</h2>
-                        <form id="predictionForm">
+                        <form id="predictionForm" onsubmit="return false;">
                             <div class="form-grid">
                                 <div class="form-group">
                                     <label for="Age">Age (years)</label>
@@ -83,24 +87,41 @@
 
                             <div class="button-group">
                                 <button type="submit" class="submit-btn">🔍 Get Prediction</button>
-                                <button type="reset" class="reset-btn" onclick="resetFormAndClear()">🔄 Reset Form</button>
+                                <button type="button" class="reset-btn" onclick="resetFormAndClear()">🔄 Reset Form</button>
                                 <button type="button" class="history-btn" onclick="goToHistory()">📊 View History</button>
                             </div>
-                        </form>
-                    </section>
 
-                    <section class="result-section" id="resultSection" style="display: none;">
-                        <div class="result-header">
-                            <h2>✅ Prediction Result</h2>
-                        </div>
-                        <div class="result-card">
-                            <div class="result-status" id="resultStatus"></div>
-                            <div class="result-details">
-                                <p><strong>Prediction:</strong> <span id="predictionValue"></span></p>
-                                <p><strong>Status:</strong> <span id="predictionStatus"></span></p>
-                                <p><strong>Confidence:</strong> <span id="confidence"></span></p>
+                            <!-- RESULT DISPLAY - SHOWS BELOW BUTTONS -->
+                            <div id="resultDisplay" class="result-display" style="display: none;">
+                                <div class="result-display-header">
+                                    <h3>📋 Prediction Result</h3>
+                                    <span class="result-display-time" id="resultDisplayTime"></span>
+                                </div>
+                                
+                                <div id="resultStatusBox" class="result-status-box">
+                                    <h2 id="resultMainStatus"></h2>
+                                </div>
+
+                                <div class="result-display-content">
+                                    <div class="result-row">
+                                        <span class="result-label">🔍 Prediction:</span>
+                                        <span class="result-output" id="resultDisplayValue"></span>
+                                    </div>
+                                    <div class="result-row">
+                                        <span class="result-label">📊 Status:</span>
+                                        <span class="result-output" id="resultDisplayStatus"></span>
+                                    </div>
+                                    <div class="result-row">
+                                        <span class="result-label">📈 Confidence:</span>
+                                        <span class="result-output" id="resultDisplayConfidence"></span>
+                                    </div>
+                                </div>
+
+                                <div class="result-display-note">
+                                    ℹ️ Click "<strong>🔄 Reset Form</strong>" to clear this result and enter new patient data
+                                </div>
                             </div>
-                        </div>
+                        </form>
                     </section>
 
                     <section class="error-section" id="errorSection" style="display: none;">
@@ -120,7 +141,5 @@
             </footer>
         </div>
     </div>
-
-    <script src="access.js"></script>
 </body>
 </html>

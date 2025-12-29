@@ -1,663 +1,538 @@
 # 🫀 Liver Disease Prediction System
 
-A comprehensive machine learning application for predicting liver disease risk using the K-Nearest Neighbors algorithm with a modern web interface.
-
-![Status](https://img.shields.io/badge/Status-Production%20Ready-brightgreen)
-![Python](https://img.shields.io/badge/Python-3.8%2B-blue)
-![FastAPI](https://img.shields.io/badge/FastAPI-0.104.1-009688)
-![License](https://img.shields.io/badge/License-MIT-green)
-
----
+An advanced machine learning application that predicts liver disease risk using K-Nearest Neighbors (KNN) algorithm based on medical parameters.
 
 ## 📋 Table of Contents
-
+- [Overview](#overview)
 - [Features](#features)
-- [Quick Start](#quick-start)
-- [System Requirements](#system-requirements)
+- [System Architecture](#system-architecture)
 - [Installation](#installation)
-- [Usage Guide](#usage-guide)
-- [API Documentation](#api-documentation)
+- [Usage](#usage)
 - [Project Structure](#project-structure)
+- [Technical Stack](#technical-stack)
 - [Model Information](#model-information)
-- [Database Schema](#database-schema)
-- [Configuration](#configuration)
+- [API Endpoints](#api-endpoints)
+- [Validation Rules](#validation-rules)
 - [Troubleshooting](#troubleshooting)
-- [Contributing](#contributing)
-- [License](#license)
+- [Future Enhancements](#future-enhancements)
 
----
+## Overview
 
-## ✨ Features
+This application provides a comprehensive solution for predicting liver disease risk using machine learning. It combines a powerful backend API with a modern, responsive frontend interface to deliver accurate medical predictions with 77.59% accuracy using the KNN algorithm.
 
-### 🔐 User Management
-- Secure user signup and login
-- Session management with localStorage
-- User account management
-- Password-protected access
+**Target Users:**
+- Medical professionals
+- Patients seeking health screening
+- Healthcare institutions
+- Research organizations
 
-### 🔬 Medical Prediction
-- **10 medical parameters** for accurate diagnosis
-- **69.83% accuracy** using KNN (K=9) algorithm
-- Real-time prediction with confidence scores
-- Color-coded results (Green=Healthy, Red=Patient)
+## Features
 
-### 📊 History Tracking
-- Complete prediction history
-- All medical parameters stored and displayed
-- Timestamp with Bangladesh timezone (GMT+6)
-- Delete individual or all predictions
-- Export-ready data format
+### 🔬 Core Prediction Features
+- **K-Nearest Neighbors Model**: Uses K=3 for optimal accuracy (77.59%)
+- **10 Medical Parameters**: Analyzes key liver function indicators
+- **Real-time Predictions**: Instant disease risk assessment
+- **Confidence Scoring**: Shows prediction confidence levels
+- **Disease Status**: Clear POSITIVE/NEGATIVE classification
+
+### 📊 User Management
+- **User Authentication**: Secure signup and login system
+- **Email Validation**: Comprehensive email format validation
+- **Password Security**: Minimum 4 character requirement
+- **SQLite Database**: User account storage and persistence
+- **Session Management**: Secure user sessions with tokens
+
+### 📈 Prediction History
+- **Full History Tracking**: All predictions saved with timestamps
+- **Search and Filter**: Find predictions by date and status
+- **Medical Parameters Display**: View all input parameters for each prediction
+- **Delete Capability**: Remove individual predictions from history
+- **Timestamp Tracking**: Automatic date and time recording
 
 ### 🎨 User Interface
-- Responsive web design (Desktop/Mobile)
-- Intuitive navigation
-- Real-time form validation
-- Professional styling with CSS3
-- Emoji-based visual indicators
+- **Responsive Design**: Works on desktop, tablet, and mobile devices
+- **Dark/Light Theme**: Toggle between themes for comfort
+- **Modern Styling**: Professional card designs and animations
+- **Field Suggestions**: Autocomplete dropdown for frequently used values
+- **Form Validation**: Real-time validation feedback with specific error messages
+- **Prediction Result Display**: Clear presentation of prediction outcomes
 
-### 📱 Multi-Page Application
-1. **Home Page** - Welcome & Information
-2. **Signup Page** - User Registration
-3. **Login Page** - User Authentication
-4. **Prediction Page** - Medical Analysis
-5. **History Page** - Results Tracking
+### 🔐 Security Features
+- **Form Validation**: Email format and password strength checks
+- **Form Progression Blocking**: Prevents invalid form submission
+- **Token-Based Authentication**: Secure API access with JWT tokens
+- **CORS Support**: Cross-origin resource sharing enabled
+- **Input Sanitization**: All inputs validated before processing
 
----
+## System Architecture
 
-## 🚀 Quick Start
+```
+┌─────────────────────────────────────────────────────────────┐
+│                     FRONTEND (Port 8000)                    │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐     │
+│  │  Home Page   │  │ Signup/Login │  │  Prediction  │     │
+│  │   (index)    │  │   Pages      │  │   Pages      │     │
+│  └──────────────┘  └──────────────┘  └──────────────┘     │
+│         │                  │                 │              │
+│         └──────────────────┼─────────────────┘              │
+│                            │                                │
+│  ┌──────────────────────────────────────────────────────┐  │
+│  │          HTML5 + CSS3 + JavaScript                  │  │
+│  │  - Responsive Design  - Form Validation             │  │
+│  │  - Dark/Light Theme   - Field Suggestions           │  │
+│  │  - Smooth Animations  - Real-time Feedback          │  │
+│  └──────────────────────────────────────────────────────┘  │
+└────────────────────────┬─────────────────────────────────┬──┘
+                         │ HTTP REST API                   │
+                         │ (JSON)                          │
+    ┌────────────────────▼────────────────────────────────▼──┐
+    │               BACKEND (Port 5000)                      │
+    │           FastAPI + Uvicorn                            │
+    │  ┌──────────────────────────────────────────────────┐  │
+    │  │  API Endpoints                                   │  │
+    │  │  /predict      - Make predictions               │  │
+    │  │  /signup       - User registration              │  │
+    │  │  /login        - User authentication            │  │
+    │  │  /history      - Get prediction history         │  │
+    │  └──────────────────────────────────────────────────┘  │
+    │                       │                                 │
+    │  ┌────────────────────▼───────────────────────────┐   │
+    │  │  KNN Model (scikit-learn)                      │   │
+    │  │  - 10 Medical Parameters                       │   │
+    │  │  - K=3 Neighbors                              │   │
+    │  │  - 77.59% Accuracy                            │   │
+    │  │  - Binary Classification (0/1)                │   │
+    │  └────────────────────┬───────────────────────────┘   │
+    │                       │                                 │
+    │  ┌────────────────────▼───────────────────────────┐   │
+    │  │  SQLite Database                               │   │
+    │  │  - User Accounts                              │   │
+    │  │  - Prediction History                         │   │
+    │  │  - Training Data                              │   │
+    │  └────────────────────────────────────────────────┘   │
+    └─────────────────────────────────────────────────────────┘
+```
+
+## Installation
 
 ### Prerequisites
-- Python 3.8+
-- pip (Python package manager)
+- Python 3.8 or higher
+- Modern web browser (Chrome, Firefox, Safari, Edge)
+- Windows/Mac/Linux operating system
 
-### Installation & Running (5 minutes)
+### Backend Setup
 
-**1. Install Dependencies**
+1. **Navigate to Backend Directory**
 ```bash
-pip install fastapi uvicorn pydantic scikit-learn pandas numpy
-```
-
-**2. Terminal 1 - Start Backend**
-```bash
-cd "e:\Machine Learning\Liver Disease\Backend"
-python main.py
-```
-```
-✅ Backend running on http://localhost:5000
-```
-
-**3. Terminal 2 - Start Frontend**
-```bash
-cd "e:\Machine Learning\Liver Disease\frontend"
-python -m http.server 8000
-```
-```
-✅ Frontend running on http://localhost:8000
-```
-
-**4. Open in Browser**
-```
-http://localhost:8000
-```
-
----
-
-## 💻 System Requirements
-
-| Component | Requirement |
-|-----------|-------------|
-| **OS** | Windows 10/11, Linux, macOS |
-| **Python** | 3.8 or higher |
-| **RAM** | Minimum 2GB, Recommended 4GB+ |
-| **Storage** | ~500MB (including dependencies) |
-| **Browser** | Chrome, Firefox, Safari, Edge (modern versions) |
-
-### Python Packages
-```
-fastapi==0.104.1
-uvicorn==0.24.0
-pydantic==2.5.0
-scikit-learn==1.3.2
-pandas==2.1.1
-numpy==1.26.2
-sqlite3 (built-in)
-```
-
----
-
-## 📦 Installation
-
-### Step-by-Step Guide
-
-#### Option 1: Manual Installation
-
-```bash
-# 1. Clone or download the project
-cd "e:\Machine Learning\Liver Disease"
-
-# 2. Install dependencies
-pip install -r requirements.txt
-
-# 3. Start backend (Terminal 1)
 cd Backend
+```
+
+2. **Install Python Dependencies**
+```bash
+pip install fastapi uvicorn scikit-learn pandas numpy
+```
+
+3. **Train the KNN Model** (if needed)
+```bash
+python train_knn_optimized.py
+```
+
+4. **Start the Backend Server**
+```bash
 python main.py
+```
+Server will run on `http://localhost:5000`
 
-# 4. Start frontend (Terminal 2)
+### Frontend Setup
+
+1. **Navigate to Frontend Directory**
+```bash
 cd frontend
+```
+
+2. **Start the Frontend Server**
+
+**Windows (PowerShell):**
+```powershell
 python -m http.server 8000
-
-# 5. Open http://localhost:8000 in browser
 ```
 
-#### Option 2: Using Virtual Environment (Recommended)
-
+**Mac/Linux (Bash):**
 ```bash
-# 1. Create virtual environment
-python -m venv venv
-
-# 2. Activate virtual environment
-# Windows:
-venv\Scripts\activate
-# Linux/Mac:
-source venv/bin/activate
-
-# 3. Install dependencies
-pip install -r requirements.txt
-
-# 4. Run as above
+python3 -m http.server 8000
 ```
 
----
+Server will run on `http://localhost:8000`
 
-## 📖 Usage Guide
+### Quick Start (Automated)
 
-### 1. User Registration
-
-1. Click **"Create Account"** on home page
-2. Fill in the form:
-   - **Username** (unique identifier)
-   - **Email** (for account recovery)
-   - **Password** (minimum recommended 6 characters)
-   - **Full Name** (your name)
-3. Click **"Sign Up"**
-4. See success message → Redirected to login
-
-### 2. User Login
-
-1. Enter **Username** and **Password**
-2. Click **"Login"**
-3. Access prediction page
-4. Your session is saved (you stay logged in)
-
-### 3. Making a Prediction
-
-Fill in all 10 medical parameters (in dataset order):
-
-| # | Parameter | Normal Range | Unit |
-|---|-----------|--------------|------|
-| 1 | Age | 18-80 | years |
-| 2 | Gender | M/F | - |
-| 3 | Total Bilirubin | 0.5-1.5 | mg/dL |
-| 4 | Direct Bilirubin | 0.0-0.3 | mg/dL |
-| 5 | Alkaline Phosphatase | 40-150 | U/L |
-| 6 | Alamine Aminotransferase | 10-40 | U/L |
-| 7 | Aspartate Aminotransferase | 10-40 | U/L |
-| 8 | Total Proteins | 6.0-8.0 | g/dL |
-| 9 | Albumin | 3.5-5.5 | g/dL |
-| 10 | Albumin-Globulin Ratio | 1.0-2.5 | - |
-
-**After clicking "Get Prediction":**
-- ✅ Result displays with status (POSITIVE/NEGATIVE)
-- ✅ Confidence percentage (0-100%)
-- ✅ Color-coded card (Green=Healthy, Red=Disease)
-- ✅ Automatically saved to history
-
-### 4. Viewing History
-
-1. Click **"View History"**
-2. See all past predictions with:
-   - Timestamp (Bangladesh timezone)
-   - All 10 medical parameters
-   - Prediction result
-   - Individual delete option
-3. Options available:
-   - **Refresh** - Reload latest predictions
-   - **Clear All History** - Remove all records
-   - **Back to Predict** - Return to prediction form
-
-### 5. Logout
-
-1. Click **"Logout"** button
-2. Session cleared
-3. Redirected to home page
-
----
-
-## 🔌 API Documentation
-
-### Base URL
-```
-http://localhost:5000
-```
-
-### Authentication Endpoints
-
-#### POST /signup
-Create a new user account
+**Windows:**
 ```bash
-curl -X POST "http://localhost:5000/signup" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "username": "john_doe",
-    "email": "john@example.com",
-    "password": "password123",
-    "full_name": "John Doe"
-  }'
+start.bat
 ```
-**Response (201):**
-```json
+
+**Mac/Linux:**
+```bash
+bash start.sh
+```
+
+## Usage
+
+### 1. Access the Application
+- Open your web browser
+- Navigate to `http://localhost:8000`
+- You'll see the welcome page
+
+### 2. Create an Account
+- Click "Create Account" button
+- Fill in the signup form:
+  - **Full Name**: Your complete name
+  - **Email**: Valid email format (must contain @ and .)
+  - **Username**: 3-20 alphanumeric characters with underscores/hyphens
+  - **Password**: Minimum 4 characters
+  - **Confirm Password**: Match the password field
+- Click "Sign Up"
+- Redirect to login page automatically
+
+### 3. Login
+- Enter your username and password
+- Click "Login"
+- Access the prediction page
+
+### 4. Make a Prediction
+- Enter all 10 medical parameters:
+  1. **Age** (years): Patient age in years
+  2. **Gender**: Male (1) or Female (0)
+  3. **Total Bilirubin** (mg/dL): Total bilirubin level
+  4. **Direct Bilirubin** (mg/dL): Direct bilirubin level
+  5. **Alkaline Phosphatase** (U/L): Enzyme level
+  6. **Alamine Aminotransferase** (U/L): ALT enzyme level
+  7. **Aspartate Aminotransferase** (U/L): AST enzyme level
+  8. **Total Proteins** (g/dL): Total protein level
+  9. **Albumin** (g/dL): Albumin level
+  10. **Albumin-Globulin Ratio**: AG ratio value
+
+- Click "Get Prediction"
+- View the result:
+  - **POSITIVE**: Disease detected (Class 1)
+  - **NEGATIVE**: No disease detected (Class 0)
+  - **Confidence**: Prediction confidence percentage
+
+### 5. View History
+- Click "View History" button
+- See all your previous predictions
+- Each record shows:
+  - Prediction result (POSITIVE/NEGATIVE)
+  - Timestamp
+  - All input parameters
+- Delete individual predictions with delete button
+- Clear all history with "Clear History" button
+
+### 6. Toggle Theme
+- Click the moon/sun icon in the top right
+- Switch between dark and light themes
+- Preference is saved locally
+
+## Project Structure
+
+```
+Liver-Disease-Prediction-System/
+├── README.md                              # Project documentation
+├── SYSTEM_STATUS.md                       # System status report
+├── PROJECT_REPORT.md                      # Detailed project report
+│
+├── start.bat                              # Windows startup script
+├── start.ps1                              # PowerShell startup script
+├── start.sh                               # Linux/Mac startup script
+│
+├── Backend/                               # Backend API
+│   ├── main.py                            # FastAPI application
+│   ├── database.py                        # Database operations
+│   ├── train_knn_optimized.py            # KNN model training
+│   ├── Indian Liver Patient Dataset.csv  # Training data
+│   ├── __pycache__/                      # Python cache
+│   └── data/                             # Model and data files
+│
+└── frontend/                              # Frontend application
+    ├── index.html                         # Welcome/home page
+    ├── signup.html                        # User registration page
+    ├── signup.js                          # Registration validation
+    ├── login.html                         # User login page
+    ├── login.js                           # Login validation
+    ├── access.html                        # Prediction page
+    ├── access.js                          # Prediction logic
+    ├── history.html                       # Prediction history page
+    ├── history.js                         # History management
+    ├── style.css                          # Application styling
+    ├── theme.js                           # Dark/light theme toggle
+    └── README.md                          # Frontend documentation
+```
+
+## Technical Stack
+
+### Backend
+- **Framework**: FastAPI (Python)
+- **Server**: Uvicorn (ASGI)
+- **ML Library**: scikit-learn 1.8.0
+- **Data Processing**: pandas, numpy
+- **Database**: SQLite
+- **Authentication**: JWT tokens
+
+### Frontend
+- **Markup**: HTML5
+- **Styling**: CSS3 with variables and animations
+- **Scripting**: Vanilla JavaScript (ES6+)
+- **Theme System**: CSS custom properties (--primary-color, --bg-primary, etc.)
+- **Storage**: LocalStorage API
+- **HTTP Client**: Fetch API
+
+### Build & Deployment
+- **Backend Server**: Python HTTP Server
+- **Frontend Server**: Python HTTP Server
+- **Port Configuration**: Backend 5000, Frontend 8000
+
+## Model Information
+
+### KNN Algorithm Details
+```
+Model Type:           K-Nearest Neighbors (KNN)
+Training Dataset:     Indian Liver Patient Dataset (ILPD)
+Total Samples:        583 patients
+Features:             10 medical parameters
+Target Variable:      Binary (0 = Negative, 1 = Positive)
+K Value:              3 neighbors
+Accuracy:             77.59%
+Classification:       Binary (Disease Present / Absent)
+```
+
+### Medical Parameters
+
+| Parameter | Unit | Range | Description |
+|-----------|------|-------|-------------|
+| Age | years | 0-120 | Patient age |
+| Gender | 0/1 | M/F | Male=1, Female=0 |
+| Total Bilirubin | mg/dL | 0.1-75 | Total bilirubin level |
+| Direct Bilirubin | mg/dL | 0.1-19.3 | Direct bilirubin level |
+| Alkaline Phosphatase | U/L | 23-2110 | ALP enzyme level |
+| Alamine Aminotransferase | U/L | 10-2000 | ALT enzyme level |
+| Aspartate Aminotransferase | U/L | 10-4929 | AST enzyme level |
+| Total Proteins | g/dL | 4.0-9.0 | Total protein level |
+| Albumin | g/dL | 1.0-7.5 | Albumin level |
+| Albumin-Globulin Ratio | ratio | 0.2-2.8 | AG ratio |
+
+## API Endpoints
+
+### 1. Make Prediction
+```
+POST /predict
+Content-Type: application/json
+
+Request Body:
 {
-  "message": "User created successfully",
-  "username": "john_doe"
+    "Age": 25,
+    "Gender": 1,
+    "Total_Bilirubin": 0.7,
+    "Direct_Bilirubin": 0.1,
+    "Alkaline_Phosphotase": 225,
+    "Alamine_Aminotransferase": 14,
+    "Aspartate_Aminotransferase": 4,
+    "Total_Proteins": 6.1,
+    "Albumin": 3.5,
+    "Albumin_and_Globulin_Ratio": 0.6
+}
+
+Response (Success - 200):
+{
+    "prediction": 1,
+    "status": "POSITIVE - Disease Detected",
+    "confidence": 100.0,
+    "message": "Disease Present"
 }
 ```
 
-#### POST /login
-Authenticate user
-```bash
-curl -X POST "http://localhost:5000/login" \
-  -H "Content-Type: application/json" \
-  -d '{
+### 2. User Signup
+```
+POST /signup
+Content-Type: application/json
+
+Request Body:
+{
+    "username": "john_doe",
+    "password": "password123",
+    "email": "john@example.com",
+    "full_name": "John Doe"
+}
+
+Response (Success - 201):
+{
+    "message": "User created successfully",
+    "access_token": "eyJhbGc...",
+    "token_type": "bearer"
+}
+```
+
+### 3. User Login
+```
+POST /login
+Content-Type: application/json
+
+Request Body:
+{
     "username": "john_doe",
     "password": "password123"
-  }'
-```
-**Response (200):**
-```json
+}
+
+Response (Success - 200):
 {
-  "message": "Login successful",
-  "username": "john_doe",
-  "user_id": "1"
+    "message": "Login successful",
+    "access_token": "eyJhbGc...",
+    "token_type": "bearer"
 }
 ```
 
-### Prediction Endpoints
+## Validation Rules
 
-#### POST /predict/{username}
-Make a prediction with medical parameters
+### Email Validation
+- ✅ Must contain `@` symbol
+- ✅ Must contain `.` (dot) after `@`
+- ✅ Local part: 1-64 characters [a-zA-Z0-9._+-]
+- ✅ Domain: 1-255 characters (each label alphanumeric + hyphens)
+- ✅ TLD: Minimum 2 letters (alphabetic only)
+- ✅ Supports multi-level domains (e.g., student.ruet.ac.bd)
+
+### Password Validation
+- ✅ Minimum 4 characters required
+- ✅ No maximum limit
+- ✅ No character restrictions (supports all characters)
+- ✅ Case-insensitive
+
+### Username Validation
+- ✅ 3-20 characters
+- ✅ Alphanumeric characters, underscores, hyphens allowed
+- ✅ No spaces or special characters except _ and -
+
+### Full Name Validation
+- ✅ Minimum 2 characters
+- ✅ Letters, spaces, hyphens, apostrophes allowed
+- ✅ No numbers or special characters
+
+### Form Progression
+- ✅ Password field only accessible when email is valid
+- ✅ Cannot skip or manually focus on disabled fields
+- ✅ Form submission blocked until all validations pass
+- ✅ Real-time feedback on validation status
+
+## Troubleshooting
+
+### Backend Server Issues
+
+**Error: Port 5000 already in use**
 ```bash
-curl -X POST "http://localhost:5000/predict/john_doe" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "Age": 45,
-    "Gender": 1,
-    "Total_Bilirubin": 1.5,
-    "Direct_Bilirubin": 0.5,
-    "Alkaline_Phosphotase": 150,
-    "Alamine_Aminotransferase": 30,
-    "Aspartate_Aminotransferase": 35,
-    "Total_Proteins": 7.0,
-    "Albumin": 3.8,
-    "Albumin_and_Globulin_Ratio": 1.2
-  }'
-```
-**Response (200):**
-```json
-{
-  "prediction": 0,
-  "status": "No Liver Disease",
-  "confidence": 75.50
-}
-```
-
-### History Endpoints
-
-#### GET /history/{username}
-Retrieve all predictions for a user
-```bash
-curl "http://localhost:5000/history/john_doe"
-```
-**Response (200):**
-```json
-{
-  "username": "john_doe",
-  "records": [
-    {
-      "id": 1,
-      "medical_parameters": "{\"Age\": 45, ...}",
-      "prediction": 0,
-      "status": "No Liver Disease",
-      "confidence": 75.50,
-      "timestamp": "2025-12-21 09:17:44"
-    }
-  ],
-  "total_predictions": 1
-}
-```
-
-#### DELETE /history/{username}/{prediction_id}
-Delete a specific prediction
-```bash
-curl -X DELETE "http://localhost:5000/history/john_doe/1"
-```
-
-#### DELETE /history/{username}
-Clear all predictions for a user
-```bash
-curl -X DELETE "http://localhost:5000/history/john_doe"
-```
-
----
-
-## 📁 Project Structure
-
-```
-Liver Disease/
-│
-├── Backend/
-│   ├── main.py                              (FastAPI application)
-│   ├── database.py                          (SQLite database operations)
-│   ├── train_knn.py                         (Model training script)
-│   ├── train_balanced_knn.py                (Alternative training)
-│   ├── knn_model.pkl                        (Trained KNN model)
-│   ├── dt_model.pkl                         (Model backup)
-│   ├── liver_disease.db                     (SQLite database)
-│   ├── Indian Liver Patient Dataset (ILPD).csv
-│   └── __pycache__/                         (Cache directory)
-│
-├── frontend/
-│   ├── index.html                           (Redirect page)
-│   ├── home.html                            (Welcome & Info)
-│   ├── signup.html                          (Registration)
-│   ├── login.html                           (Authentication)
-│   ├── access.html                          (Prediction form)
-│   ├── history.html                         (Prediction history)
-│   ├── style.css                            (Styling & Layout)
-│   ├── home.js                              (Home page logic)
-│   ├── signup.js                            (Signup handler)
-│   ├── login.js                             (Login handler)
-│   ├── access.js                            (Prediction handler)
-│   └── history.js                           (History handler)
-│
-├── README.md                                (This file)
-├── PROJECT_REPORT.md                        (Detailed report)
-├── SYSTEM_STATUS.html                       (System status page)
-├── COMPLETE_REPORT.txt                      (Original report)
-└── requirements.txt                         (Python dependencies)
-```
-
----
-
-## 🤖 Model Information
-
-### Algorithm
-- **Type:** Classification
-- **Method:** K-Nearest Neighbors (KNN)
-- **Framework:** Scikit-learn
-- **Preprocessing:** StandardScaler
-
-### Performance Metrics
-- **Accuracy:** 69.83%
-- **Precision (Patients):** 74%
-- **Recall (Patients):** 89% (High sensitivity)
-- **F1-Score:** 0.81
-
-### Dataset
-- **Name:** Indian Liver Patient Dataset (ILPD)
-- **Records:** 583 patients (579 after cleaning)
-- **Features:** 10 medical parameters
-- **Target:** Binary classification (0=Healthy, 1=Patient)
-- **Train/Test Split:** 80% (463) / 20% (116)
-
-### Training Details
-```python
-# Optimal K value: 9
-KNN Pipeline:
-  - StandardScaler (normalization)
-  - KNeighborsClassifier (n_neighbors=9)
-
-# Cross-validation results:
-K=3:  Accuracy=0.6638
-K=5:  Accuracy=0.6552
-K=7:  Accuracy=0.6897
-K=9:  Accuracy=0.6983 ✅ (BEST)
-K=11: Accuracy=0.6897
-K=13: Accuracy=0.6810
-K=15: Accuracy=0.6810
-```
-
----
-
-## 🗄️ Database Schema
-
-### Users Table
-```sql
-CREATE TABLE users (
-    id INTEGER PRIMARY KEY,
-    username TEXT UNIQUE,
-    password TEXT,
-    email TEXT UNIQUE,
-    full_name TEXT,
-    created_at TIMESTAMP
-)
-```
-
-### Predictions Table
-```sql
-CREATE TABLE predictions (
-    id INTEGER PRIMARY KEY,
-    user_id INTEGER FOREIGN KEY,
-    age REAL,
-    gender TEXT,
-    tb REAL,              -- Total_Bilirubin
-    db REAL,              -- Direct_Bilirubin
-    alkphos REAL,         -- Alkaline_Phosphotase
-    sgpt REAL,            -- Alamine_Aminotransferase
-    sgot REAL,            -- Aspartate_Aminotransferase
-    tp REAL,              -- Total_Proteins
-    alb REAL,             -- Albumin
-    ag_ratio REAL,        -- Albumin_and_Globulin_Ratio
-    prediction INTEGER,   -- 0 or 1
-    status TEXT,
-    confidence REAL,      -- 0-100
-    created_at TIMESTAMP
-)
-```
-
----
-
-## ⚙️ Configuration
-
-### Backend Configuration
-
-**File:** `Backend/main.py`
-
-```python
-# Server settings
-HOST = "0.0.0.0"
-PORT = 5000
-
-# Database
-DB_PATH = "liver_disease.db"
-
-# Model
-MODEL_PATH = "knn_model.pkl"
-```
-
-### Frontend Configuration
-
-**File:** `frontend/home.js`, `access.js`, etc.
-
-```javascript
-// API Base URL
-const API_URL = 'http://localhost:5000';
-
-// Timezone offset (Bangladesh = GMT+6)
-const TIMEZONE_OFFSET = 6 * 60 * 60 * 1000;
-```
-
-### Database Configuration
-
-Auto-creates SQLite database on first run:
-- Location: `Backend/liver_disease.db`
-- Tables: Automatically created
-- No additional configuration needed
-
----
-
-## 🔧 Troubleshooting
-
-### 1. Port Already in Use
-
-**Error:** `Address already in use`
-
-**Solution:**
-```bash
-# Find process using port 5000
+# Find process using port 5000 and kill it
+# Windows:
 netstat -ano | findstr :5000
-
-# Kill the process
 taskkill /PID <PID> /F
 
-# Or use a different port
-python main.py --port 5001
+# Mac/Linux:
+lsof -i :5000
+kill -9 <PID>
 ```
 
-### 2. Module Not Found
-
-**Error:** `ModuleNotFoundError: No module named 'fastapi'`
-
-**Solution:**
+**Error: ModuleNotFoundError (scikit-learn, pandas, numpy)**
 ```bash
-pip install fastapi uvicorn pydantic scikit-learn pandas numpy
+pip install scikit-learn pandas numpy
 ```
 
-### 3. Database Lock
+**Error: Database file not found**
+- The database is created automatically on first run
+- Check Backend/data/ directory for sqlite.db
 
-**Error:** `database is locked`
+### Frontend Server Issues
 
-**Solution:**
+**Error: Port 8000 already in use**
 ```bash
-# Delete existing database
-rm Backend/liver_disease.db
+# Windows:
+netstat -ano | findstr :8000
+taskkill /PID <PID> /F
 
-# System will recreate on next startup
+# Mac/Linux:
+lsof -i :8000
+kill -9 <PID>
 ```
 
-### 4. Medical Parameters Showing as "undefined"
+**Page not loading / CORS errors**
+- Ensure both servers are running
+- Backend on http://localhost:5000
+- Frontend on http://localhost:8000
+- Check browser console for specific errors
 
-**Error:** History page shows undefined for medical parameters
+### Prediction Issues
 
-**Solution:**
-- Backend must be restarted after code changes
-- Clear browser cache and localStorage
-- Check database.py mapping is correct
+**Error: Empty or invalid medical parameters**
+- All 10 fields must have valid numeric values
+- Age must be 0-120
+- Other values should be within expected medical ranges
 
-### 5. Predictions Not Saving
+**Error: API connection failed**
+- Check if backend server is running
+- Verify ports (5000 for backend, 8000 for frontend)
+- Check browser console (F12) for detailed errors
 
-**Error:** Prediction completes but doesn't appear in history
+### Database Issues
 
-**Solution:**
-- Verify user is logged in (check localStorage)
-- Confirm database file exists
-- Check backend logs for errors
-- Restart both servers
+**Lost prediction history**
+- Check if cookies/localStorage are enabled
+- Try clearing browser cache
+- Ensure you're logged into the same account
+- History is per-user and stored in backend database
 
-### 6. Login Not Working
+## Future Enhancements
 
-**Error:** "Invalid username or password"
+### Planned Features
+- [ ] Multiple ML models (Random Forest, SVM, Neural Networks)
+- [ ] Model comparison and accuracy metrics
+- [ ] Advanced filtering and search in history
+- [ ] Export predictions to PDF/CSV
+- [ ] Doctor/patient role management
+- [ ] Data visualization and charts
+- [ ] Mobile application (iOS/Android)
+- [ ] Email notifications for predictions
+- [ ] User profile management
+- [ ] Password reset functionality
+- [ ] Two-factor authentication (2FA)
+- [ ] Admin dashboard and analytics
+- [ ] Batch prediction processing
+- [ ] API rate limiting and authentication
+- [ ] Database optimization and indexing
 
-**Solution:**
-- Verify username and password are correct
-- Check if database file exists
-- Try signing up a new account
-- Clear browser localStorage
+### Performance Improvements
+- [ ] Implement caching for predictions
+- [ ] Database query optimization
+- [ ] Frontend bundle optimization
+- [ ] Progressive Web App (PWA) support
+- [ ] Image and asset compression
 
----
+## Support & Contact
 
-## 🤝 Contributing
+For issues, suggestions, or contributions:
+- Check the troubleshooting section
+- Review system status in SYSTEM_STATUS.md
+- See detailed report in PROJECT_REPORT.md
 
-Contributions are welcome! Areas for improvement:
+## License
 
-1. **Model Enhancement:**
-   - Try different algorithms (Random Forest, SVM)
-   - Implement ensemble methods
-   - Add cross-validation
+This project is provided as-is for educational and medical research purposes.
 
-2. **Features:**
-   - Export predictions to PDF/CSV
-   - Comparative analysis over time
-   - Risk stratification levels
-   - Mobile app version
+## Version History
 
-3. **Security:**
-   - Add password hashing
-   - Implement JWT tokens
-   - Enable HTTPS
-   - Add role-based access
-
-### How to Contribute
-
-1. Fork the repository
-2. Create a feature branch
-3. Make improvements
-4. Submit a pull request
-
----
-
-## 📝 License
-
-This project is licensed under the MIT License - see LICENSE file for details.
-
----
-
-## 📞 Support
-
-For issues, questions, or suggestions:
-
-1. Check **Troubleshooting** section above
-2. Review **PROJECT_REPORT.md** for detailed documentation
-3. Check logs in terminal for error messages
-4. Verify all dependencies are installed
+**v1.0.0** (December 30, 2025)
+- Initial release
+- KNN model with 77.59% accuracy
+- User authentication system
+- Prediction history tracking
+- Dark/light theme support
+- Responsive design
 
 ---
 
-## 📚 Additional Resources
-
-- **Detailed Report:** See `PROJECT_REPORT.md`
-- **System Status:** See `SYSTEM_STATUS.html`
-- **Dataset Info:** `Backend/Indian Liver Patient Dataset (ILPD).csv`
-- **Training Script:** `Backend/train_knn.py`
-
----
-
-## ✅ Checklist
-
-Before using the system:
-
-- [ ] Python 3.8+ installed
-- [ ] All dependencies installed (`pip install -r requirements.txt`)
-- [ ] Two terminals ready (one for backend, one for frontend)
-- [ ] Ports 5000 and 8000 available
-- [ ] Read through Usage Guide section
-- [ ] Test with sample medical values
-
----
-
-**🎉 Ready to predict liver disease!**
-
-For the best experience:
-1. Start with creating a test account
-2. Try making a prediction with realistic medical values
-3. View your prediction history
-4. Explore all features
-
----
-
-**Last Updated:** December 21, 2025  
-**Version:** 1.0  
-**Status:** Production Ready ✅
-
----
-
-*Questions? Check PROJECT_REPORT.md or SYSTEM_STATUS.html for more information.*
+**Last Updated**: December 30, 2025
