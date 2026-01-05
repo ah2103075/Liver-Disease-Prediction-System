@@ -29,11 +29,27 @@ app.add_middleware(
 # Initialize database
 init_db()
 
-# Load the model (pipeline with scaler + classifier)
-# Using optimized KNN model with K=3 for maximum accuracy (77.59%)
-model_path = os.path.join(os.path.dirname(__file__), 'knn_best_model.pkl')
-with open(model_path, 'rb') as f:
-    model = pickle.load(f)  # This is a Pipeline with scaler and KNN classifier (K=3)
+# Load the voting ensemble model with KNN, Random Forest, and SVM
+ensemble_model_path = os.path.join(os.path.dirname(__file__), 'voting_ensemble_model.pkl')
+try:
+    with open(ensemble_model_path, 'rb') as f:
+        ensemble_model_data = pickle.load(f)
+        knn_model = ensemble_model_data['knn_pipeline']
+        rf_model = ensemble_model_data['rf_pipeline']
+        svm_model = ensemble_model_data['svm_pipeline']
+        ensemble_accuracy = ensemble_model_data['ensemble_accuracy']
+        print(f"✅ Voting Ensemble Model loaded successfully (Accuracy: {ensemble_accuracy*100:.2f}%)")
+except FileNotFoundError:
+    print("⚠️ Voting ensemble model not found. Using fallback KNN model.")
+    fallback_model_path = os.path.join(os.path.dirname(__file__), 'knn_best_model.pkl')
+    if os.path.exists(fallback_model_path):
+        with open(fallback_model_path, 'rb') as f:
+            knn_model = pickle.load(f)
+        rf_model = None
+        svm_model = None
+        ensemble_accuracy = 0.0
+    else:
+        raise FileNotFoundError("No models found. Please train models first using train_voting_ensemble.py")
 
 # Feature names for the liver disease model (matching dataset column order)
 FEATURE_NAMES = [
@@ -227,17 +243,40 @@ def predict(request: PredictionRequest):
         # Convert to numpy array and reshape for prediction
         input_data = np.array(features).reshape(1, -1)
         
-        # Make prediction (scaler is applied automatically by the pipeline)
-        prediction = model.predict(input_data)[0]
-        probability = model.predict_proba(input_data)[0] if hasattr(model, 'predict_proba') else None
-        
-        result = {
-            'prediction': int(prediction),
-            'status': 'Liver Disease Detected' if prediction == 1 else 'No Liver Disease',
-        }
-        
-        if probability is not None:
-            result['confidence'] = float(max(probability)) * 100
+        if rf_model is not None and svm_model is not None:
+            # Use voting ensemble (KNN + Random Forest + SVM)
+            knn_pred = knn_model.predict(input_data)[0]
+            rf_pred = rf_model.predict(input_data)[0]
+            svm_pred = svm_model.predict(input_data)[0]
+            
+            # Majority voting: if at least 2 algorithms predict 1, result is 1
+            votes = [knn_pred, rf_pred, svm_pred]
+            prediction = 1 if sum(votes) >= 2 else 0
+            
+            # Calculate confidence as percentage of models agreeing
+            agreement_count = sum([knn_pred == prediction, rf_pred == prediction, svm_pred == prediction])
+            confidence = (agreement_count / 3) * 100
+            
+            result = {
+                'prediction': int(prediction),
+                'status': 'Liver Disease Detected' if prediction == 1 else 'No Liver Disease',
+                'confidence': confidence,
+                'algorithm': 'Voting Ensemble (KNN + RF + SVM)',
+                'votes': {'knn': int(knn_pred), 'random_forest': int(rf_pred), 'svm': int(svm_pred)}
+            }
+        else:
+            # Fallback to KNN only
+            prediction = knn_model.predict(input_data)[0]
+            probability = knn_model.predict_proba(input_data)[0] if hasattr(knn_model, 'predict_proba') else None
+            
+            result = {
+                'prediction': int(prediction),
+                'status': 'Liver Disease Detected' if prediction == 1 else 'No Liver Disease',
+                'algorithm': 'KNN (Fallback)'
+            }
+            
+            if probability is not None:
+                result['confidence'] = float(max(probability)) * 100
         
         return result
     
@@ -269,19 +308,30 @@ def predict_with_history(username: str, request: PredictionRequest):
         # Convert to numpy array and reshape for prediction
         input_data = np.array(features).reshape(1, -1)
         
-        # Make prediction
-        prediction = model.predict(input_data)[0]
-        probability = model.predict_proba(input_data)[0] if hasattr(model, 'predict_proba') else None
+        if rf_model is not None and svm_model is not None:
+            # Use voting ensemble (KNN + Random Forest + SVM)
+            knn_pred = knn_model.predict(input_data)[0]
+            rf_pred = rf_model.predict(input_data)[0]
+            svm_pred = svm_model.predict(input_data)[0]
+            
+            # Majority voting: if at least 2 algorithms predict 1, result is 1
+            votes = [knn_pred, rf_pred, svm_pred]
+            prediction = 1 if sum(votes) >= 2 else 0
+            
+            # Calculate confidence as percentage of models agreeing
+            agreement_count = sum([knn_pred == prediction, rf_pred == prediction, svm_pred == prediction])
+            confidence = (agreement_count / 3) * 100
+        else:
+            # Fallback to KNN only
+            prediction = knn_model.predict(input_data)[0]
+            probability = knn_model.predict_proba(input_data)[0] if hasattr(knn_model, 'predict_proba') else None
+            confidence = float(max(probability)) * 100 if probability is not None else 0.0
         
         result = {
             'prediction': int(prediction),
             'status': 'Liver Disease Detected' if prediction == 1 else 'No Liver Disease',
+            'confidence': confidence,
         }
-        
-        if probability is not None:
-            result['confidence'] = float(max(probability)) * 100
-        else:
-            result['confidence'] = 0.0
         
         # Add to database history
         add_prediction(
@@ -328,22 +378,32 @@ def batch_predict(request: BatchPredictionRequest):
             ]
             
             input_data = np.array(features).reshape(1, -1)
-            prediction = model.predict(input_data)[0]
-            # INVERT prediction
-            prediction = 1 - prediction
-            probability = model.predict_proba(input_data)[0] if hasattr(model, 'predict_proba') else None
-            # Invert probability order if exists
-            if probability is not None:
-                probability = probability[::-1]
+            
+            if rf_model is not None and svm_model is not None:
+                # Use voting ensemble (KNN + Random Forest + SVM)
+                knn_pred = knn_model.predict(input_data)[0]
+                rf_pred = rf_model.predict(input_data)[0]
+                svm_pred = svm_model.predict(input_data)[0]
+                
+                # Majority voting: if at least 2 algorithms predict 1, result is 1
+                votes = [knn_pred, rf_pred, svm_pred]
+                prediction = 1 if sum(votes) >= 2 else 0
+                
+                # Calculate confidence
+                agreement_count = sum([knn_pred == prediction, rf_pred == prediction, svm_pred == prediction])
+                confidence = (agreement_count / 3) * 100
+            else:
+                # Fallback to KNN only
+                prediction = knn_model.predict(input_data)[0]
+                probability = knn_model.predict_proba(input_data)[0] if hasattr(knn_model, 'predict_proba') else None
+                confidence = float(max(probability)) * 100 if probability is not None else 0.0
             
             result = {
                 'index': idx,
                 'prediction': int(prediction),
                 'status': 'Liver Disease Detected' if prediction == 1 else 'No Liver Disease',
+                'confidence': confidence
             }
-            
-            if probability is not None:
-                result['confidence'] = float(max(probability)) * 100
             
             results.append(result)
         

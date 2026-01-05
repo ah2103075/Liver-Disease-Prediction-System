@@ -1,6 +1,25 @@
 // API Configuration
 const API_URL = 'http://localhost:5000';
 
+// Toggle Password Visibility
+function togglePassword(fieldId) {
+    const inputField = document.getElementById(fieldId);
+    const toggleBtn = inputField.parentElement.querySelector('.password-toggle');
+    
+    if (!inputField || !toggleBtn) return;
+    
+    if (inputField.type === 'password') {
+        inputField.type = 'text';
+        toggleBtn.textContent = '🙈';
+    } else {
+        inputField.type = 'password';
+        toggleBtn.textContent = '👁️';
+    }
+}
+
+// Make function globally available
+window.togglePassword = togglePassword;
+
 // Login form handler
 document.getElementById('loginForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
