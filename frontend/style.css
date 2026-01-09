@@ -342,8 +342,7 @@ body {
 .password-toggle:active {
     transform: translateY(-50%) scale(0.9);
 }
-}
-}
+
 
 .form-grid {
     display: grid;
